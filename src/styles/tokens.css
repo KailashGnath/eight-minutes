@@ -1,0 +1,43 @@
+:root {
+  /* Space and ink */
+  --bg: #05060a;
+  --ink: #f2eee6;
+  --ink-2: rgba(242, 238, 230, 0.74);
+  --ink-3: rgba(242, 238, 230, 0.5);
+  --ink-4: rgba(242, 238, 230, 0.24);
+  --line: rgba(242, 238, 230, 0.1);
+  --line-2: rgba(242, 238, 230, 0.2);
+
+  /* The one accent: sunlight */
+  --gold: #ffd27a;
+  --gold-hot: #fff1cf;
+  --gold-deep: #ffad4a;
+  --gold-dim: rgba(255, 210, 122, 0.14);
+  --gold-line: rgba(255, 210, 122, 0.38);
+  --gold-glow: rgba(255, 184, 84, 0.5);
+  --sky: #8cc6ff;
+
+  /* Surfaces */
+  --glass: rgba(12, 13, 19, 0.5);
+  --glass-strong: rgba(12, 13, 19, 0.78);
+  --blur: blur(18px) saturate(1.25);
+
+  /* Type */
+  --font-sans: 'Geist Sans', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'Geist Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+
+  /* Layout */
+  --safe-t: env(safe-area-inset-top, 0px);
+  --safe-r: env(safe-area-inset-right, 0px);
+  --safe-b: env(safe-area-inset-bottom, 0px);
+  --safe-l: env(safe-area-inset-left, 0px);
+  --gutter: clamp(16px, 3.2vw, 44px);
+  --radius: 16px;
+
+  /* Motion: one curve, calm durations */
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --dur: 560ms;
+  --dur-slow: 1100ms;
+
+  color-scheme: dark;
+}

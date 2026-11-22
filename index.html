@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#05060a" />
+    <meta name="color-scheme" content="dark" />
+    <title>8 Minutes</title>
+    <meta name="description" content="Ride a photon from the Sun to Earth in real time, at true scale." />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='7' fill='%23ffd27a'/%3E%3Ccircle cx='16' cy='16' r='12' fill='none' stroke='%23ffd27a' stroke-opacity='.4'/%3E%3C/svg%3E"
+    />
+  </head>
+  <body class="state-loading">
+    <canvas id="gl" aria-hidden="true"></canvas>
+    <div id="fallback-scene" aria-hidden="true"><span class="fb-sun"></span><span class="fb-beam"></span></div>
+    <div id="labels" class="labels" aria-hidden="true"></div>
+    <div id="veil" class="veil" aria-hidden="true"></div>
+
+    <!-- Loading: the beam draws itself -->
+    <div id="loader" class="screen loader" role="status">
+      <div class="loader-line"><span id="loader-fill"></span></div>
+      <p class="loader-copy">Light takes about 8 minutes to reach us.</p>
+    </div>
+
+    <!-- Landing -->
+    <main id="landing" class="screen landing" aria-labelledby="title">
+      <div class="landing-copy">
+        <p class="kicker reveal" style="--i: 0">A real-time journey at true scale</p>
+        <h1 id="title" class="reveal" style="--i: 1"><span class="t8">8</span> Minutes</h1>
+        <p class="lede reveal" style="--i: 2">Ride a photon from the Sun to Earth, in real time.</p>
+        <div class="actions reveal" style="--i: 3">
+          <button id="btn-track" class="btn-primary" type="button">
+            <span class="btn-dot" aria-hidden="true"></span>
+            Track a photon
+          </button>
+          <button id="btn-core" class="btn-link" type="button">
+            Start inside the Sun
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6" /></svg>
+          </button>
+        </div>
+        <dl class="today reveal" style="--i: 4">
+          <div>
+            <dt>Today’s trip</dt>
+            <dd id="today-time">8 min 10 s</dd>
+          </div>
+          <div>
+            <dt>Earth is</dt>
+            <dd id="today-dist">147.7 million km away</dd>
+          </div>
+        </dl>
+      </div>
+      <p class="landing-foot reveal" style="--i: 5">
+        <button id="btn-sound-landing" class="btn-text" type="button" aria-pressed="false">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10v4h4l5 4V6L8 10H4z" /><path class="wave" d="M16.5 8.5a5 5 0 010 7" /></svg>
+          <span>Sound off</span>
+        </button>
+        <span class="sep" aria-hidden="true">·</span>
+        <span>Best in a dark room</span>
+      </p>
+    </main>
+
+    <!-- Prologue captions -->
+    <div id="captions" class="captions" aria-live="polite"></div>
+    <button id="btn-skip" class="btn-ghost skip" type="button">Skip <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6" /></svg></button>
+
+    <!-- Journey HUD -->
+    <div id="hud" class="hud">
+      <header class="hud-top dimmable">
+        <div class="wordmark">
+          <span class="wm-sun" aria-hidden="true"></span>
+          <span class="wm-name">8 Minutes</span>
+          <span class="wm-sub">Sun <i>→</i> Earth · live</span>
+        </div>
+        <div class="hud-tools">
+          <button id="btn-log" class="icon-btn" type="button" aria-label="Milestones so far">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 7h11M8 12h11M8 17h11" /><circle cx="4.5" cy="7" r=".8" /><circle cx="4.5" cy="12" r=".8" /><circle cx="4.5" cy="17" r=".8" /></svg>
+          </button>
+          <button id="btn-sound" class="icon-btn" type="button" aria-label="Sound" aria-pressed="false">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10v4h4l5 4V6L8 10H4z" /><path class="wave" d="M16.5 8.5a5 5 0 010 7" /><path class="mute" d="M16 9.5l5 5M21 9.5l-5 5" /></svg>
+          </button>
+          <button id="btn-settings" class="icon-btn" type="button" aria-label="Settings">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8" /><circle cx="16" cy="7" r="2" /><circle cx="10" cy="17" r="2" /></svg>
+          </button>
+          <button id="btn-about" class="icon-btn" type="button" aria-label="About this journey">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5" /><path d="M12 11v5.5" /><circle cx="12" cy="7.8" r=".6" /></svg>
+          </button>
+        </div>
+      </header>
+
+      <button id="warp-pill" class="pill warp-pill" type="button" hidden>
+        <span class="pulse" aria-hidden="true"></span>
+        <span id="warp-text">Time warp 100×</span>
+        <span class="pill-hint">Back to real time</span>
+      </button>
+      <div id="toast" class="toast" role="status" aria-live="polite"></div>
+      <div id="paused" class="paused-badge" hidden>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6v12M15 6v12" /></svg>
+        Paused
+      </div>
+      <button id="btn-back" class="pill back-pill" type="button" hidden>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3" /><path d="M12 2v4M12 18v4M2 12h4M18 12h4" /></svg>
+        Back to the photon
+      </button>
+
+      <section id="cards" class="cards" aria-live="polite" aria-label="Milestones"></section>
+
+      <div class="hud-bottom dimmable">
+        <div class="telemetry">
+          <div class="tm">
+            <span class="tm-label">Elapsed</span>
+            <span id="tm-time" class="tm-val">00:00.00</span>
+          </div>
+          <div class="tm tm-dist">
+            <span class="tm-label">Distance</span>
+            <span class="tm-val"><span id="tm-dist">0</span><span id="tm-dist-tail" class="spin"></span> <small id="tm-unit">km</small></span>
+          </div>
+          <div class="tm">
+            <span class="tm-label">Journey</span>
+            <span id="tm-pct" class="tm-val">0.0<small>%</small></span>
+          </div>
+          <div class="tm tm-minor">
+            <span class="tm-label">Speed</span>
+            <span id="tm-speed" class="tm-val">299,792 <small>km/s</small></span>
+          </div>
+          <div class="tm tm-minor">
+            <span class="tm-label">To Earth</span>
+            <span id="tm-eta" class="tm-val">8:10</span>
+          </div>
+        </div>
+
+        <div class="controls">
+          <button id="btn-race" class="chip" type="button" aria-expanded="false" aria-controls="race">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h10M4 18h6" /></svg>
+            Race
+          </button>
+          <div class="speed" role="group" aria-label="Playback speed">
+            <button id="btn-pause" class="seg seg-icon" type="button" aria-label="Pause" aria-pressed="false">
+              <svg class="i-pause" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6v12M15 6v12" /></svg>
+              <svg class="i-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10-6.5z" /></svg>
+            </button>
+            <button class="seg" type="button" data-rate="1" aria-pressed="true">1×</button>
+            <button class="seg" type="button" data-rate="10" aria-pressed="false">10×</button>
+            <button class="seg" type="button" data-rate="100" aria-pressed="false">100×</button>
+            <button class="seg" type="button" data-rate="1000" aria-pressed="false">1000×</button>
+            <span id="speed-thumb" class="speed-thumb" aria-hidden="true"></span>
+          </div>
+          <button id="btn-next" class="chip chip-next" type="button">
+            Next
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13M13 7l5 5-5 5" /></svg>
+          </button>
+        </div>
+
+        <div id="minimap" class="minimap" aria-label="Journey map">
+          <div class="mm-rail"><span id="mm-fill" class="mm-fill"></span></div>
+          <div id="mm-ticks" class="mm-ticks"></div>
+          <div id="mm-bodies" class="mm-bodies"></div>
+          <span id="mm-photon" class="mm-photon" aria-hidden="true"></span>
+          <div id="mm-tip" class="mm-tip" role="tooltip" hidden></div>
+        </div>
+      </div>
+
+      <aside id="race" class="race glass" aria-label="The race" hidden>
+        <header>
+          <h2>The race</h2>
+          <p>Everything left the Sun with the photon.</p>
+        </header>
+        <ol id="race-lanes" class="race-lanes"></ol>
+      </aside>
+
+      <div id="lens" class="lens" hidden>
+        <div class="lens-view" aria-hidden="true">
+          <span class="lens-reticle"></span>
+        </div>
+        <p class="lens-label"><b id="lens-name">Mercury</b><span id="lens-info">4,879 km wide</span></p>
+      </div>
+    </div>
+
+    <!-- Arrival / end -->
+    <section id="end" class="screen end" aria-labelledby="end-title">
+      <div class="end-inner">
+        <p class="kicker reveal" style="--i: 0" id="end-kicker">Arrived · today</p>
+        <h2 id="end-title" class="end-time reveal" style="--i: 1">8 min 10 s</h2>
+        <p class="end-lede reveal" style="--i: 2" id="end-lede">That photon just travelled 147,036,512 km to reach Earth.</p>
+        <div class="end-race reveal" style="--i: 3">
+          <p class="end-sub">Its rivals are still on the way</p>
+          <ol id="end-racers"></ol>
+        </div>
+        <blockquote class="end-twist reveal" style="--i: 4">
+          The last 8 minutes were the easy part. Escaping the Sun’s core took it tens of thousands of years. The light on
+          your skin today began that journey before the first cities were built.
+        </blockquote>
+        <div class="end-actions reveal" style="--i: 5">
+          <button id="btn-again" class="btn-primary" type="button"><span class="btn-dot" aria-hidden="true"></span>Ride again</button>
+          <button id="btn-end-core" class="btn-link" type="button">
+            Start inside the Sun
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6" /></svg>
+          </button>
+          <button id="btn-share" class="btn-link" type="button">
+            Share
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V4M8 8l4-4 4 4M5 13v6h14v-6" /></svg>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Sheets -->
+    <dialog id="sheet-settings" class="sheet" aria-labelledby="settings-title">
+      <header class="sheet-head">
+        <h2 id="settings-title">Settings</h2>
+        <button class="icon-btn sheet-close" type="button" aria-label="Close">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" /></svg>
+        </button>
+      </header>
+      <div class="setting">
+        <div><b>Units</b><span>Distances in kilometres or miles</span></div>
+        <div class="toggle-group" role="group" aria-label="Units">
+          <button type="button" data-units="km" aria-pressed="true">km</button>
+          <button type="button" data-units="mi" aria-pressed="false">mi</button>
+        </div>
+      </div>
+      <label class="setting">
+        <div><b>Sound</b><span>A quiet generated ambience</span></div>
+        <input id="set-sound" type="checkbox" class="switch" />
+      </label>
+      <label class="setting">
+        <div><b>Labels</b><span>Planet names and the distance ruler</span></div>
+        <input id="set-labels" type="checkbox" class="switch" checked />
+      </label>
+      <label class="setting">
+        <div><b>Reduce motion</b><span>No flashes, camera swoops or streaks</span></div>
+        <input id="set-motion" type="checkbox" class="switch" />
+      </label>
+      <p class="sheet-foot">
+        Keys: <kbd>Space</kbd> pause · <kbd>←</kbd><kbd>→</kbd> speed · <kbd>N</kbd> next · <kbd>Z</kbd> zoom out ·
+        <kbd>M</kbd> sound
+      </p>
+    </dialog>
+
+    <dialog id="sheet-about" class="sheet" aria-labelledby="about-title">
+      <header class="sheet-head">
+        <h2 id="about-title">About this journey</h2>
+        <button class="icon-btn sheet-close" type="button" aria-label="Close">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" /></svg>
+        </button>
+      </header>
+      <div class="prose">
+        <p>
+          Everything here is <b>true to scale and in real time</b>. One pixel is about 2,300 km, so the Sun is roughly
+          600 pixels wide, Earth is 5½ pixels, and light crosses the screen at about 130 pixels per second.
+        </p>
+        <p>
+          The distance changes through the year because Earth’s orbit is slightly oval. Today’s distance is worked out
+          from Earth’s orbit, so the trip takes between about 8 min 7 s (early January) and 8 min 24 s (early July).
+        </p>
+        <p>
+          The planets are lined up along the beam for the show. In reality they’re almost never in a row, but each one
+          sits at its true average distance from the Sun.
+        </p>
+        <p>
+          Sizes, distances and speeds come from NASA fact sheets. Parker Solar Probe’s record is its December 2024
+          pass, 6.1 million km from the Sun’s surface at about 192 km/s.
+        </p>
+      </div>
+    </dialog>
+
+    <dialog id="sheet-log" class="sheet" aria-labelledby="log-title">
+      <header class="sheet-head">
+        <h2 id="log-title">Milestones</h2>
+        <button class="icon-btn sheet-close" type="button" aria-label="Close">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" /></svg>
+        </button>
+      </header>
+      <ol id="log-list" class="log-list"></ol>
+    </dialog>
+
+    <noscript><p class="noscript">This journey needs JavaScript to run.</p></noscript>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

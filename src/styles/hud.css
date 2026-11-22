@@ -1,0 +1,796 @@
+/* ---------- HUD shell ---------- */
+.hud {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 900ms var(--ease),
+    visibility 0s linear 900ms;
+}
+.state-journey .hud {
+  opacity: 1;
+  visibility: visible;
+  transition:
+    opacity 900ms var(--ease),
+    visibility 0s;
+}
+.hud > * {
+  pointer-events: auto;
+}
+.hud .cards,
+.hud .lens {
+  pointer-events: none;
+}
+
+/* The scene takes over when you stop touching things. */
+.dimmable {
+  transition: opacity 1200ms var(--ease);
+}
+.hud-idle .dimmable {
+  opacity: 0.22;
+}
+.hud-idle .dimmable:hover,
+.hud-idle .dimmable:focus-within {
+  opacity: 1;
+  transition-duration: 300ms;
+}
+
+/* ---------- Top bar ---------- */
+.hud-top {
+  position: fixed;
+  top: calc(var(--gutter) * 0.7 + var(--safe-t));
+  left: calc(var(--gutter) + var(--safe-l));
+  right: calc(var(--gutter) + var(--safe-r) - 8px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.wordmark {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+}
+.wm-sun {
+  position: relative;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--gold);
+  box-shadow: 0 0 12px 2px var(--gold-glow);
+}
+.wm-sun::after {
+  content: '';
+  position: absolute;
+  inset: -5px;
+  border-radius: 50%;
+  border: 1px solid var(--gold-line);
+}
+.wm-sub {
+  font-weight: 400;
+  letter-spacing: 0.14em;
+  color: var(--ink-3);
+  padding-left: 12px;
+  border-left: 1px solid var(--line-2);
+}
+.wm-sub i {
+  font-style: normal;
+  color: var(--gold);
+}
+.hud-tools {
+  display: flex;
+  gap: 2px;
+}
+
+/* ---------- Pills, toast, pause ---------- */
+.warp-pill {
+  position: fixed;
+  top: calc(var(--gutter) * 0.7 + var(--safe-t));
+  left: 50%;
+  transform: translateX(-50%);
+  color: var(--gold);
+  border: 1px solid var(--gold-line);
+  background: rgba(40, 28, 8, 0.45);
+  -webkit-backdrop-filter: var(--blur);
+  backdrop-filter: var(--blur);
+  box-shadow: 0 0 40px -10px var(--gold-glow);
+  animation: pill-in 500ms var(--ease);
+}
+.warp-pill .pill-hint {
+  max-width: 0;
+  overflow: hidden;
+  opacity: 0;
+  color: var(--ink-2);
+  letter-spacing: 0.04em;
+  text-transform: none;
+  font-weight: 400;
+  transition: all 400ms var(--ease);
+}
+.warp-pill:hover .pill-hint,
+.warp-pill:focus-visible .pill-hint {
+  max-width: 160px;
+  opacity: 1;
+}
+.warp-pill.slowmo {
+  color: var(--sky);
+  border-color: rgba(140, 198, 255, 0.4);
+  background: rgba(8, 20, 40, 0.45);
+  box-shadow: 0 0 40px -10px rgba(140, 198, 255, 0.5);
+}
+.pulse {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 10px currentColor;
+  animation: blink 1.2s ease-in-out infinite;
+}
+@keyframes blink {
+  50% {
+    opacity: 0.25;
+  }
+}
+@keyframes pill-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -8px);
+  }
+}
+.toast {
+  position: fixed;
+  top: calc(var(--gutter) * 0.7 + var(--safe-t) + 50px);
+  left: 50%;
+  max-width: calc(100vw - 32px);
+  padding: 10px 18px;
+  border-radius: 999px;
+  font-size: 14px;
+  color: var(--ink);
+  text-align: center;
+  background: var(--glass-strong);
+  -webkit-backdrop-filter: var(--blur);
+  backdrop-filter: var(--blur);
+  border: 1px solid var(--line-2);
+  transform: translate(-50%, -8px);
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    opacity 400ms var(--ease),
+    transform 400ms var(--ease);
+}
+.toast.on {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+.paused-badge {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, 70px);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+  animation: blink 2s ease-in-out infinite;
+}
+.back-pill {
+  position: fixed;
+  left: 50%;
+  bottom: calc(var(--bottom-h, 150px) + var(--safe-b) + 24px);
+  transform: translateX(-50%);
+  color: var(--ink);
+  border: 1px solid var(--line-2);
+  background: var(--glass-strong);
+  -webkit-backdrop-filter: var(--blur);
+  backdrop-filter: var(--blur);
+  animation: pill-in 500ms var(--ease);
+}
+
+/* ---------- Bottom: telemetry, controls, minimap ---------- */
+.hud-bottom {
+  position: fixed;
+  left: calc(var(--gutter) + var(--safe-l));
+  right: calc(var(--gutter) + var(--safe-r));
+  bottom: calc(var(--gutter) * 0.8 + var(--safe-b));
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-areas:
+    'tele controls'
+    'map map';
+  align-items: end;
+  gap: 18px 24px;
+}
+.telemetry {
+  grid-area: tele;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 10px clamp(18px, 2.6vw, 40px);
+}
+.tm {
+  display: grid;
+  gap: 6px;
+}
+.tm-label {
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+.tm-val {
+  font-size: clamp(18px, 1.6vw, 22px);
+  font-weight: 400;
+  color: var(--ink);
+  white-space: nowrap;
+}
+.tm-val small {
+  font-size: 0.62em;
+  color: var(--ink-3);
+  margin-left: 1px;
+}
+.tm-minor .tm-val {
+  font-size: 14px;
+  color: var(--ink-2);
+  padding-bottom: 3px;
+}
+#tm-time {
+  min-width: 7.2ch;
+}
+/* The last three digits spin too fast to read: dim them so the eye rests on the rest. */
+.spin {
+  color: var(--ink-4);
+}
+.tm-dist .tm-val {
+  min-width: 13ch;
+}
+
+.controls {
+  grid-area: controls;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.speed {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  padding: 3px;
+  border-radius: 999px;
+  border: 1px solid var(--line-2);
+  background: rgba(5, 6, 10, 0.35);
+  -webkit-backdrop-filter: var(--blur);
+  backdrop-filter: var(--blur);
+}
+.seg {
+  position: relative;
+  z-index: 1;
+  min-width: 52px;
+  height: 32px;
+  padding: 0 10px;
+  border-radius: 999px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--ink-3);
+  transition: color 300ms var(--ease);
+}
+.seg:hover {
+  color: var(--ink);
+}
+.seg[aria-pressed='true'] {
+  color: var(--gold);
+}
+.seg-icon {
+  min-width: 38px;
+  display: grid;
+  place-items: center;
+  color: var(--ink-2);
+}
+.seg-icon .i-play {
+  display: none;
+}
+.seg-icon[aria-pressed='true'] .i-play {
+  display: block;
+}
+.seg-icon[aria-pressed='true'] .i-pause {
+  display: none;
+}
+.seg-icon[aria-pressed='true'] {
+  color: var(--gold);
+}
+.seg-icon svg {
+  width: 16px;
+  height: 16px;
+}
+.speed-thumb {
+  position: absolute;
+  top: 3px;
+  bottom: 3px;
+  left: 0;
+  width: 0;
+  border-radius: 999px;
+  background: var(--gold-dim);
+  box-shadow: 0 0 0 1px var(--gold-line) inset;
+  transform: translateX(var(--x, 0));
+  width: var(--w, 0);
+  transition:
+    transform 450ms var(--ease),
+    width 450ms var(--ease);
+}
+.chip-next svg {
+  transition: transform 300ms var(--ease);
+}
+.chip-next:hover svg {
+  transform: translateX(2px);
+}
+
+/* Minimap: the whole trip at true proportion */
+.minimap {
+  grid-area: map;
+  position: relative;
+  height: 44px;
+  --p: 0;
+}
+.mm-rail {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 14px;
+  height: 1px;
+  background: var(--line-2);
+}
+.mm-fill {
+  position: absolute;
+  left: 0;
+  top: -0.5px;
+  height: 2px;
+  width: 100%;
+  transform-origin: left;
+  transform: scaleX(var(--p));
+  background: linear-gradient(90deg, rgba(255, 173, 74, 0.2), var(--gold));
+  box-shadow: 0 0 10px var(--gold-glow);
+}
+.mm-ticks,
+.mm-bodies {
+  position: absolute;
+  inset: 0;
+}
+.mm-tick {
+  position: absolute;
+  top: 14px;
+  left: calc(var(--at) * 100%);
+  width: 22px;
+  height: 22px;
+  margin: -11px 0 0 -11px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+}
+.mm-tick::before {
+  content: '';
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--bg);
+  border: 1px solid var(--ink-3);
+  transition: all 300ms var(--ease);
+}
+.mm-tick.passed::before {
+  background: var(--gold);
+  border-color: var(--gold);
+}
+.mm-tick:hover::before,
+.mm-tick:focus-visible::before {
+  transform: scale(1.6);
+  border-color: var(--ink);
+}
+.mm-body {
+  position: absolute;
+  top: 14px;
+  left: calc(var(--at) * 100%);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+.mm-body i {
+  display: block;
+  width: var(--s, 7px);
+  height: var(--s, 7px);
+  border-radius: 50%;
+  background: var(--c, var(--ink-2));
+  box-shadow: 0 0 0 3px var(--bg);
+}
+.mm-body span {
+  position: absolute;
+  top: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  white-space: nowrap;
+}
+.mm-body.first span {
+  left: 0;
+  transform: none;
+}
+.mm-body.last span {
+  left: auto;
+  right: 0;
+  transform: none;
+}
+.mm-body.sun i {
+  box-shadow:
+    0 0 0 3px var(--bg),
+    0 0 12px 2px var(--gold-glow);
+}
+.mm-photon {
+  position: absolute;
+  top: 14px;
+  left: calc(var(--p) * 100%);
+  width: 9px;
+  height: 9px;
+  margin: -4.5px 0 0 -4.5px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow:
+    0 0 0 2px rgba(255, 210, 122, 0.5),
+    0 0 14px 4px var(--gold-glow);
+}
+.mm-tip {
+  position: absolute;
+  bottom: 30px;
+  left: calc(var(--at) * 100%);
+  transform: translateX(-50%);
+  width: max-content;
+  max-width: 260px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: var(--glass-strong);
+  -webkit-backdrop-filter: var(--blur);
+  backdrop-filter: var(--blur);
+  border: 1px solid var(--line-2);
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--ink-2);
+  animation: tip-in 300ms var(--ease);
+  z-index: 3;
+}
+.mm-tip.left {
+  transform: none;
+  left: calc(var(--at) * 100% - 16px);
+}
+.mm-tip.right {
+  transform: translateX(-100%);
+  left: calc(var(--at) * 100% + 16px);
+}
+.mm-tip b {
+  display: block;
+  font-weight: 400;
+  color: var(--ink);
+}
+.mm-tip .num {
+  font-size: 12px;
+  color: var(--gold);
+}
+.mm-tip button {
+  margin-top: 8px;
+  height: 30px;
+  padding: 0 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  color: var(--gold);
+  border: 1px solid var(--gold-line);
+  background: var(--gold-dim);
+}
+@keyframes tip-in {
+  from {
+    opacity: 0;
+    margin-bottom: -4px;
+  }
+}
+
+/* ---------- Milestone cards ---------- */
+.cards {
+  position: fixed;
+  left: 50%;
+  bottom: calc(var(--bottom-h, 150px) + var(--safe-b) + 28px);
+  width: min(440px, calc(100vw - 2 * var(--gutter)));
+  transform: translateX(-50%);
+  height: 0;
+}
+.card {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 18px 22px 20px;
+  overflow: hidden;
+  pointer-events: auto;
+  opacity: 0;
+  transform: translateY(14px);
+  filter: blur(6px);
+  transition:
+    opacity 700ms var(--ease),
+    transform 700ms var(--ease),
+    filter 700ms var(--ease);
+  touch-action: pan-y;
+}
+.card.in {
+  opacity: 1;
+  transform: none;
+  filter: none;
+}
+.card.out {
+  opacity: 0;
+  transform: translateY(-10px);
+  filter: blur(4px);
+  transition-duration: 500ms;
+}
+.card-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+.card-meta .num {
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--gold);
+}
+.card-big {
+  font-size: clamp(26px, 2.4vw, 32px);
+  font-weight: 300;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  margin-bottom: 8px;
+}
+.card-text {
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--ink-2);
+  text-wrap: pretty;
+}
+.card-text b {
+  font-weight: 400;
+  color: var(--ink);
+}
+.card-timer {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold));
+  transform-origin: left;
+  transform: scaleX(1);
+  opacity: 0.7;
+}
+.card.planet .card-big {
+  color: var(--gold-hot);
+}
+.card.earth .card-big {
+  color: var(--sky);
+}
+
+/* ---------- Race ---------- */
+.race {
+  position: fixed;
+  left: calc(var(--gutter) + var(--safe-l));
+  bottom: calc(var(--bottom-h, 150px) + var(--safe-b) + 28px);
+  width: min(360px, calc(100vw - 2 * var(--gutter)));
+  padding: 18px 20px 12px;
+  animation: race-in 500ms var(--ease);
+}
+@keyframes race-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+}
+.race h2 {
+  font-size: 16px;
+  font-weight: 400;
+}
+.race header p {
+  margin-top: 3px;
+  font-size: 13px;
+  color: var(--ink-3);
+}
+.race-lanes {
+  margin-top: 12px;
+}
+.race-lanes li {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: baseline;
+  gap: 2px 12px;
+  padding: 10px 0;
+  border-top: 1px solid var(--line);
+}
+.race-lanes .who {
+  font-size: 14px;
+  color: var(--ink);
+}
+.race-lanes .who small {
+  display: block;
+  font-size: 12px;
+  color: var(--ink-3);
+}
+.race-lanes .num {
+  font-size: 13px;
+  color: var(--ink-2);
+  text-align: right;
+}
+.race-lanes .ratio {
+  grid-column: 1 / -1;
+  font-size: 12px;
+  color: var(--ink-3);
+}
+.race-lanes .ratio b {
+  font-weight: 400;
+  color: var(--gold);
+  font-family: var(--font-mono);
+}
+.race-lanes li.light .who {
+  color: var(--gold);
+}
+
+/* ---------- Telescope lens ---------- */
+.lens {
+  position: fixed;
+  right: calc(var(--gutter) + var(--safe-r) + 2vw);
+  top: calc(var(--safe-t) + 15vh);
+  width: var(--lens, 230px);
+  display: grid;
+  justify-items: center;
+  gap: 14px;
+  opacity: 0;
+  transform: scale(0.92);
+  transition:
+    opacity 700ms var(--ease),
+    transform 700ms var(--ease);
+}
+.lens.on {
+  opacity: 1;
+  transform: none;
+}
+.lens-view {
+  position: relative;
+  width: var(--lens, 230px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  border: 1px solid var(--line-2);
+  box-shadow:
+    0 0 0 6px rgba(242, 238, 230, 0.03),
+    0 0 60px -10px rgba(0, 0, 0, 0.9) inset;
+}
+.lens-reticle {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background:
+    linear-gradient(var(--ink-4), var(--ink-4)) center 6% / 1px 10% no-repeat,
+    linear-gradient(var(--ink-4), var(--ink-4)) center 94% / 1px 10% no-repeat,
+    linear-gradient(90deg, var(--ink-4), var(--ink-4)) 6% center / 10% 1px no-repeat,
+    linear-gradient(90deg, var(--ink-4), var(--ink-4)) 94% center / 10% 1px no-repeat;
+}
+.lens-reticle::after {
+  content: '';
+  position: absolute;
+  inset: 14%;
+  border-radius: 50%;
+  border: 1px dashed rgba(242, 238, 230, 0.1);
+}
+.lens-label {
+  text-align: center;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--ink-3);
+}
+.lens-label b {
+  display: block;
+  font-size: 15px;
+  font-weight: 400;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+
+/* ---------- World labels (projected from 3D) ---------- */
+.labels {
+  position: fixed;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+  overflow: hidden;
+  transition: opacity 600ms var(--ease);
+}
+.labels-off .labels .wl:not(.always) {
+  opacity: 0 !important;
+}
+.wl {
+  position: absolute;
+  left: 0;
+  top: 0;
+  opacity: 0;
+  will-change: transform, opacity;
+  transition: opacity 400ms var(--ease);
+}
+.wl-ruler {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--ink-4);
+  transform-origin: 0 0;
+  white-space: nowrap;
+}
+.wl-ruler span {
+  display: block;
+  transform: translate(-50%, 0);
+}
+.wl-body {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+  white-space: nowrap;
+}
+.wl-body .ring {
+  width: 22px;
+  height: 22px;
+  margin: -11px 0 0 -11px;
+  border-radius: 50%;
+  border: 1px solid rgba(242, 238, 230, 0.35);
+  flex: none;
+}
+.wl-body .name {
+  position: absolute;
+  left: 18px;
+  top: -24px;
+  padding-left: 10px;
+  border-left: 1px solid rgba(242, 238, 230, 0.35);
+  line-height: 1.5;
+}
+.wl-body .name small {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.02em;
+  text-transform: none;
+  color: var(--ink-3);
+  font-weight: 400;
+}
+.wl-body.sun .ring {
+  border-color: var(--gold-line);
+}
+
+/* Medium widths: keep the telemetry on one line. */
+@media (max-width: 1180px) {
+  .tm-minor:not(:last-child) {
+    display: none;
+  }
+}
+@media (max-width: 960px) {
+  .tm-minor {
+    display: none;
+  }
+}

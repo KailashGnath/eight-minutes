@@ -1,0 +1,400 @@
+/* ============================================================
+   Phone portrait: the world turns 90°, the Sun sits at the top
+   and the photon falls down the screen. .portrait is set from JS
+   so CSS and camera always agree.
+   ============================================================ */
+
+.portrait {
+  --gutter: 16px;
+}
+
+/* Landing: Sun on top, words at the bottom */
+.portrait .landing {
+  justify-content: flex-end;
+  padding-bottom: calc(28px + var(--safe-b));
+  background: linear-gradient(180deg, transparent 30%, rgba(5, 6, 10, 0.7) 58%, rgba(5, 6, 10, 0.92));
+}
+.portrait .landing-copy {
+  width: 100%;
+  margin: 0;
+  gap: 16px;
+}
+.portrait .landing h1 {
+  font-size: clamp(56px, 17vw, 84px);
+}
+.portrait .lede {
+  font-size: 17px;
+}
+.portrait .actions {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 6px;
+}
+.portrait .actions .btn-primary {
+  justify-content: center;
+}
+.portrait .actions .btn-link {
+  justify-content: center;
+}
+.portrait .today {
+  gap: 24px;
+  margin-top: 6px;
+  padding-top: 16px;
+}
+.portrait .landing-foot {
+  position: static;
+  margin-top: 18px;
+  justify-content: center;
+  font-size: 12px;
+}
+
+/* Prologue */
+.portrait .captions {
+  bottom: calc(110px + var(--safe-b));
+}
+.portrait .caption {
+  font-size: 20px;
+}
+
+/* HUD top */
+.portrait .hud-top {
+  top: calc(8px + var(--safe-t));
+  right: calc(8px + var(--safe-r));
+}
+.portrait .wm-sub {
+  display: none;
+}
+.portrait .wordmark {
+  font-size: 11px;
+}
+.portrait .warp-pill {
+  top: calc(var(--safe-t) + 104px);
+  height: 32px;
+  font-size: 11px;
+}
+.portrait .toast {
+  top: calc(var(--safe-t) + 144px);
+  font-size: 13px;
+}
+
+/* HUD bottom → telemetry strip on top, controls at the bottom, minimap on the right edge */
+.portrait .hud-bottom {
+  position: static;
+  display: contents;
+}
+.portrait .telemetry {
+  position: fixed;
+  top: calc(58px + var(--safe-t));
+  left: calc(16px + var(--safe-l));
+  right: calc(16px + var(--safe-r));
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--line);
+}
+.portrait .tm {
+  gap: 4px;
+}
+.portrait .tm-dist {
+  justify-self: center;
+}
+.portrait .tm-val {
+  font-size: 15px;
+}
+.portrait .tm-dist .tm-val {
+  min-width: 0;
+}
+.portrait .tm-minor {
+  display: none;
+}
+.portrait .controls {
+  position: fixed;
+  left: calc(12px + var(--safe-l));
+  right: calc(12px + var(--safe-r));
+  bottom: calc(14px + var(--safe-b));
+  justify-content: space-between;
+  gap: 6px;
+}
+.portrait .speed {
+  flex: 1;
+  justify-content: space-between;
+  max-width: 280px;
+  margin: 0 auto;
+}
+.portrait .seg {
+  min-width: 0;
+  flex: 1;
+  height: 38px;
+  padding: 0 4px;
+  font-size: 12px;
+}
+.portrait .seg-icon {
+  flex: 0 0 38px;
+}
+.portrait .chip {
+  height: 44px;
+  padding: 0 12px;
+}
+.portrait .chip-next {
+  padding: 0 10px 0 12px;
+}
+.portrait #btn-race {
+  width: 44px;
+  padding: 0;
+  justify-content: center;
+  font-size: 0;
+  gap: 0;
+}
+
+.portrait .minimap {
+  position: fixed;
+  right: calc(10px + var(--safe-r));
+  top: calc(var(--safe-t) + 132px);
+  bottom: calc(var(--safe-b) + 84px);
+  width: 30px;
+  height: auto;
+}
+.portrait .mm-rail {
+  left: 14px;
+  right: auto;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  height: auto;
+}
+.portrait .mm-fill {
+  left: -0.5px;
+  top: 0;
+  width: 2px;
+  height: 100%;
+  transform-origin: top;
+  transform: scaleY(var(--p));
+  background: linear-gradient(180deg, rgba(255, 173, 74, 0.2), var(--gold));
+}
+.portrait .mm-tick,
+.portrait .mm-body,
+.portrait .mm-photon {
+  left: 15px;
+  top: calc(var(--at, var(--p)) * 100%);
+}
+.portrait .mm-tick {
+  width: 30px;
+  height: 30px;
+  margin: -15px 0 0 -15px;
+}
+.portrait .mm-photon {
+  top: calc(var(--p) * 100%);
+}
+.portrait .mm-body span {
+  top: 50%;
+  left: auto;
+  right: 14px;
+  transform: translateY(-50%);
+  font-size: 9px;
+}
+.portrait .mm-body.first span,
+.portrait .mm-body.last span {
+  right: 14px;
+  left: auto;
+  transform: translateY(-50%);
+}
+.portrait .mm-tip,
+.portrait .mm-tip.left,
+.portrait .mm-tip.right {
+  bottom: auto;
+  left: auto;
+  right: 34px;
+  top: calc(var(--at) * 100%);
+  transform: translateY(-50%);
+}
+
+/* The bottom bar is split into pieces on phones, so dim each piece. */
+.portrait.hud-idle .telemetry,
+.portrait.hud-idle .controls,
+.portrait.hud-idle .minimap {
+  opacity: 0.22;
+}
+.portrait .telemetry,
+.portrait .controls,
+.portrait .minimap {
+  transition: opacity 1200ms var(--ease);
+}
+
+/* Cards become bottom sheets you can swipe away */
+.portrait .cards {
+  left: 12px;
+  right: 50px;
+  width: auto;
+  transform: none;
+  bottom: calc(72px + var(--safe-b));
+}
+.portrait .card {
+  padding: 16px 18px 18px;
+  touch-action: pan-y;
+}
+.portrait .card-big {
+  font-size: 24px;
+}
+.portrait .card-text {
+  font-size: 14px;
+}
+
+.portrait .race {
+  left: 12px;
+  right: 12px;
+  width: auto;
+  bottom: calc(72px + var(--safe-b));
+}
+.portrait .back-pill {
+  bottom: calc(72px + var(--safe-b));
+}
+
+.portrait .lens {
+  --lens: 140px;
+  right: auto;
+  left: calc(16px + var(--safe-l));
+  top: calc(var(--safe-t) + 140px);
+  gap: 8px;
+}
+.portrait .lens-label {
+  font-size: 11px;
+}
+.portrait .lens-label b {
+  font-size: 12px;
+}
+
+/* End */
+.portrait .end {
+  display: block;
+  padding: calc(36dvh + var(--safe-t)) 18px 0;
+  background: linear-gradient(180deg, transparent 24%, rgba(5, 6, 10, 0.86) 38%, rgba(5, 6, 10, 0.97) 60%);
+}
+.portrait .end-inner {
+  gap: 16px;
+}
+.portrait .end-time {
+  font-size: 54px;
+}
+.portrait #end-racers li {
+  padding: 7px 0;
+  font-size: 14px;
+}
+.portrait .end-lede,
+.portrait .end-twist {
+  font-size: 15px;
+}
+.portrait .end-actions {
+  position: sticky;
+  bottom: 0;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 2px;
+  margin: 0 -18px;
+  padding: 22px 18px calc(12px + var(--safe-b));
+  background: linear-gradient(180deg, rgba(5, 6, 10, 0), var(--bg) 30%);
+}
+.portrait .end-actions .btn-primary,
+.portrait .end-actions .btn-link {
+  justify-content: center;
+}
+
+/* Bottom-anchored dialogs on phones */
+.portrait .sheet {
+  margin: auto 0 0;
+  width: 100%;
+  max-width: none;
+  max-height: 82dvh;
+  border-radius: 22px 22px 0 0;
+  padding-bottom: calc(24px + var(--safe-b));
+  transform: translateY(40px);
+}
+.portrait .sheet[open] {
+  transform: none;
+}
+@starting-style {
+  .portrait .sheet[open] {
+    transform: translateY(40px);
+  }
+}
+
+/* ============================================================
+   Landscape phones and small tablets: desktop layout, tighter
+   ============================================================ */
+@media (max-height: 520px) and (orientation: landscape) {
+  :root {
+    --gutter: 14px;
+  }
+  .landing h1 {
+    font-size: 64px;
+  }
+  .landing-copy {
+    gap: 12px;
+  }
+  .lede {
+    font-size: 16px;
+  }
+  .today {
+    margin-top: 4px;
+    padding-top: 12px;
+  }
+  .landing-foot {
+    display: none;
+  }
+  .tm-minor {
+    display: none;
+  }
+  .tm-val {
+    font-size: 16px;
+  }
+  .hud-bottom {
+    gap: 8px 16px;
+  }
+  .minimap {
+    height: 36px;
+  }
+  .card {
+    padding: 12px 16px 14px;
+  }
+  .card-big {
+    font-size: 22px;
+    margin-bottom: 4px;
+  }
+  .card-text {
+    font-size: 13px;
+  }
+  .lens {
+    --lens: 140px;
+    top: calc(var(--safe-t) + 64px);
+  }
+  .end-time {
+    font-size: 56px;
+  }
+  .end-inner {
+    gap: 12px;
+  }
+}
+
+@media (max-width: 900px) and (orientation: landscape) {
+  .wm-sub {
+    display: none;
+  }
+  .seg {
+    min-width: 44px;
+  }
+}
+
+/* ============================================================
+   Reduced motion: keep fades, drop movement
+   ============================================================ */
+.reduce-motion .reveal,
+.reduce-motion .card,
+.reduce-motion .caption {
+  transform: none !important;
+  filter: none !important;
+}
+.reduce-motion .btn-dot::after,
+.reduce-motion .pulse,
+.reduce-motion .paused-badge {
+  animation: none;
+}
