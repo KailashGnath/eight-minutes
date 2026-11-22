@@ -322,6 +322,7 @@ class App {
   private toLanding() {
     this.setState('landing');
     this.setTodayText();
+    this.measureCopy();
     this.director?.cut(() => this.heroShot());
     if (this.xp) {
       this.xp.photon.intensity = 0;
@@ -370,9 +371,12 @@ class App {
     const R = this.xp!.sun.radius;
     const sway = this.settings.reduceMotion ? 0 : Math.sin(this.elapsed * 0.09) * 0.02;
     if (v.portrait) {
-      const ppu = (0.6 * v.w) / R;
-      const p = f.pose((0.5 - 0.16) * f.along(ppu), ppu, 0.05 + sway, Math.sin(this.elapsed * 0.07) * 6);
-      return p;
+      // Fit the Sun above the landing copy: its lower limb sits just over the kicker line.
+      const r = Math.min(0.6 * v.w, 0.3 * v.h);
+      const ppu = r / R;
+      const copyTop = this.copyTop || v.h * 0.47;
+      const centerPx = Math.min(copyTop - 26 - r, v.h * 0.18);
+      return f.pose((v.h / 2 - centerPx) / ppu, ppu, 0.05 + sway, Math.sin(this.elapsed * 0.07) * 6);
     }
     const ppu = (0.44 * v.h) / R;
     return f.pose((0.5 - 0.15) * f.along(ppu), ppu, 0.06 + sway, Math.sin(this.elapsed * 0.07) * 8);
@@ -962,6 +966,14 @@ class App {
     this.syncOrientation();
     this.hud.measure();
     this.hud.placeThumb();
+    this.measureCopy();
+  }
+
+  /** Where the landing copy begins, so the portrait hero can keep the Sun clear of it. */
+  private copyTop = 0;
+  private measureCopy() {
+    const copy = document.querySelector<HTMLElement>('.landing-copy');
+    if (copy) this.copyTop = copy.getBoundingClientRect().top;
   }
 }
 

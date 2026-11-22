@@ -36,8 +36,12 @@
 .portrait .actions .btn-link {
   justify-content: center;
 }
+.portrait .landing .kicker {
+  text-shadow: 0 0 18px rgba(5, 6, 10, 0.9);
+}
 .portrait .today {
-  gap: 24px;
+  flex-wrap: wrap;
+  gap: 14px 28px;
   margin-top: 6px;
   padding-top: 16px;
 }

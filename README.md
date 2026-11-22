@@ -10,6 +10,16 @@ npm run dev        # http://localhost:5173
 npm run build      # static site in dist/
 ```
 
+## Going live
+It's served from the portfolio site at https://kailashgnath.github.io/eight-minutes/. To update it:
+
+```bash
+npm run deploy:portfolio   # builds and copies dist/ into ../kailash-lab/public/eight-minutes
+cd ../kailash-lab && git add public/eight-minutes && git commit -m "Update 8 Minutes" && git push
+```
+
+Pushing the portfolio's `main` runs its GitHub Pages workflow.
+
 ## Where things live
 - `src/core/Scale.ts`: true-scale constants and today's Earth–Sun distance.
 - `src/core/Clock.ts`: journey time, time-warp, catch-up after a hidden tab.

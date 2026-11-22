@@ -1,6 +1,8 @@
 import { defineConfig } from 'vite';
 
 export default defineConfig({
+  // Relative asset paths, so the build works at any sub-path (e.g. kailashgnath.github.io/eight-minutes/).
+  base: './',
   build: {
     // Real browser versions instead of 'es2022': newer syntax (class static blocks etc.) is
     // transpiled, so older phones — iOS 15 Safari, un-updated Android Chrome — still run it.
